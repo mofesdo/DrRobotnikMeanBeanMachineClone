@@ -7,6 +7,7 @@ public class Piece : MonoBehaviour
     public Vector3Int[] cells { get; private set; }
     public Vector3Int position { get; private set; }
     public int rotationIndex { get; private set; }
+    public bool player;
 
     public float stepDelay = 1f;
     public float moveDelay = 0.1f;
@@ -36,6 +37,11 @@ public class Piece : MonoBehaviour
         {
             cells[i] = (Vector3Int)data.cells[i];
         }
+        if(player == null)
+        {
+            player = true;
+        }
+
     }
 
     private void Update()
@@ -45,21 +51,41 @@ public class Piece : MonoBehaviour
         // We use a timer to allow the player to make adjustments to the piece
         // before it locks in place
         lockTime += Time.deltaTime;
+        if(player == true)
+        {
+            // Handle rotation
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                Rotate(-1);
+            }
+            else if (Input.GetKeyDown(KeyCode.E))
+            {
+                Rotate(1);
+            }
 
-        // Handle rotation
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            Rotate(-1);
+            // Handle hard drop
+            if (Input.GetKeyDown(KeyCode.LeftShift))
+            {
+                HardDrop();
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.E))
+        if(player == false)
         {
-            Rotate(1);
-        }
+            // Handle rotation
+            if (Input.GetKeyDown(KeyCode.U))
+            {
+                Rotate(-1);
+            }
+            else if (Input.GetKeyDown(KeyCode.O))
+            {
+                Rotate(1);
+            }
 
-        // Handle hard drop
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            HardDrop();
+            // Handle hard drop
+            if (Input.GetKeyDown(KeyCode.RightShift))
+            {
+                HardDrop();
+            }
         }
 
         // Allow the player to hold movement keys but only after a move delay
@@ -80,25 +106,49 @@ public class Piece : MonoBehaviour
 
     private void HandleMoveInputs()
     {
-        // Soft drop movement
-        if (Input.GetKey(KeyCode.S))
+        if(player == true)
         {
-            if (Move(Vector2Int.down))
+            // Soft drop movement
+            if (Input.GetKey(KeyCode.S))
             {
-                // Update the step time to prevent double movement
-                stepTime = Time.time + stepDelay;
+                if (Move(Vector2Int.down))
+                {
+                    // Update the step time to prevent double movement
+                    stepTime = Time.time + stepDelay;
+                }
+            }
+            // Left/right movement
+            if (Input.GetKey(KeyCode.A))
+            {
+                Move(Vector2Int.left);
+            }
+            else if (Input.GetKey(KeyCode.D))
+            {
+                Move(Vector2Int.right);
+            }
+        }
+        if (player == false)
+        {
+            // Soft drop movement
+            if (Input.GetKey(KeyCode.K))
+            {
+                if (Move(Vector2Int.down))
+                {
+                    // Update the step time to prevent double movement
+                    stepTime = Time.time + stepDelay;
+                }
+            }
+            // Left/right movement
+            if (Input.GetKey(KeyCode.J))
+            {
+                Move(Vector2Int.left);
+            }
+            else if (Input.GetKey(KeyCode.L))
+            {
+                Move(Vector2Int.right);
             }
         }
 
-        // Left/right movement
-        if (Input.GetKey(KeyCode.A))
-        {
-            Move(Vector2Int.left);
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            Move(Vector2Int.right);
-        }
     }
 
     private void Step()
